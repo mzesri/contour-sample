@@ -18,7 +18,7 @@ fi
 
 PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 JKS_FILE="$PLAYAPP_HOME/conf/playapp.jks"
-SERVER_CERT_ALIAS="A4IOT-StreamServer-Certificate"
+SERVER_CERT_ALIAS="PlayApp-StreamServer-Certificate"
 SECRETS_FOLDER="/tmp/playappcert"
 if [ -d "$SECRETS_FOLDER" ]; then
   echo 'We have what we need to configure https'
