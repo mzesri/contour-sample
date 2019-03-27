@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+
+  <parent>
+    <groupId>org.javi</groupId>
+    <artifactId>contour-sample-parent-project</artifactId>
+    <version>0.1</version>
+  </parent>
+  <artifactId>docker-image-playapp</artifactId>
+
+  <properties>
+    <docker.namespace>javidelgadillo</docker.namespace>
+    <docker.repository>contour-sample</docker.repository>
+    <playapp.artifactId>sample-playapp</playapp.artifactId>
+    <playapp.finalname>play-app-${project.version}</playapp.finalname>
+    <playapp.zip.path>/maven/sample-playapp/${playapp.finalname}-playapp.zip</playapp.zip.path>
+    <playapp.http.port>9000</playapp.http.port>
+    <playapp.https.port>9443</playapp.https.port>
+    <startup.script>configure-https.sh</startup.script>
+    <docker.image.name>${docker.namespace}/${docker.repository}</docker.image.name>
+    <full.path.startup.script>/${playapp.finalname}/conf/${startup.script}</full.path.startup.script>
+    <yum.install.command.prefix>for i in {1..30}; do echo "Attempt #$i"; yum install -y </yum.install.command.prefix>
+    <yum.install.command.suffix>; rc=$?; if [ $rc -ne 0 ]; then sleep 30s; else break; fi done</yum.install.command.suffix>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.javi</groupId>
+      <artifactId>play-app</artifactId>
+      <classifier>playapp</classifier>
+      <type>zip</type>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.22.1</version>
+        <configuration>
+          <logDate>default</logDate>
+          <autoPull>true</autoPull>
+          <verbose>true</verbose>
+          <images>
+            <image>
+              <alias>playapp</alias>
+              <name>${docker.image.name}</name>
+              <build>
+                <from>centos:7</from>
+                <assembly>
+                  <mode>dir</mode>
+                  <descriptor>assembly.xml</descriptor>
+                </assembly>
+                <runCmds>
+                  <runCmd>${yum.install.command.prefix} java-1.8.0-openjdk.x86_64 unzip openssl ${yum.install.command.suffix}</runCmd>
+                  <runCmd>unzip -o ${playapp.zip.path} -d /</runCmd>
+                  <runCmd>chmod 777 /${playapp.finalname}</runCmd>
+                  <runCmd>mkdir -p /${playapp.finalname}/conf</runCmd>
+                  <runCmd>mv /maven/${startup.script} /${playapp.finalname}/conf</runCmd>
+                  <runCmd>chmod +x ${full.path.startup.script}</runCmd>
+                  <runCmd>rm -rf /maven /anaconda-post.log</runCmd>
+                </runCmds>
+                <ports>
+                  <port>${playapp.http.port}</port>
+                  <port>${playapp.https.port}</port>
+                </ports>
+                <entryPoint>
+                  <shell>${full.path.startup.script} /${playapp.finalname} ${playapp.http.port} ${playapp.https.port}</shell>
+               </entryPoint>
+              </build>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>create-images</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

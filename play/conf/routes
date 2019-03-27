@@ -1,0 +1,8 @@
+
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+GET         /            controllers.GetController.index
+GET         /echo        controllers.GetController.index
+GET         /ws          controllers.WebSocketController.ws()
+
