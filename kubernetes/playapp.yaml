@@ -1,0 +1,84 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: playapp
+  labels:
+    app: playapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: playapp
+  template:
+    metadata:
+      labels:
+        app: playapp
+    spec:
+      containers:
+      - name: playapp
+        image: javidelgadillo/contour-sample:0.1
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 9000
+        - name: https
+          containerPort: 9443
+        - name: debug
+          containerPort: 8000
+        env:
+        - name: EXTERNAL_HOSTNAME
+          value: contour-test-public.westus2.cloudapp.azure.com
+        resources:
+          limits:
+            cpu: '8'
+            memory: 8Gi
+          requests:
+            cpu: '1'
+            memory: 1Gi
+        volumeMounts:
+        - name: playappcertvol
+          mountPath: "/tmp/playappcert"
+          readOnly: true
+      volumes:
+      - name: playappcertvol
+        secret:
+          secretName: playapp-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: playapp-service
+  labels:
+    app: playapp
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 9000
+  - name: https
+    port: 443
+    targetPort: 9443
+  selector:
+    app: playapp
+---
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata: 
+  name: playapp-ingress-route 
+  namespace: default
+  annotations:
+    contour.heptio.com/request-timeout: "infinity"
+spec: 
+  virtualhost:
+    fqdn: contour-test-public.westus2.cloudapp.azure.com
+    tls:
+      secretName: playapp-cert
+  routes: 
+    - match: /
+      enableWebsockets: true
+      permitInsecure: true
+      services: 
+        - name: playapp-service
+          port: 80
+
