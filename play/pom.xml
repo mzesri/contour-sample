@@ -140,7 +140,6 @@
                             <directory>${project.basedir}/conf</directory>
                             <includes>
                                 <include>generated.keystore</include>
-                                <include>trinity.jks</include>
                             </includes>
                         </fileset>
                         <fileset>
