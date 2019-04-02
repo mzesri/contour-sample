@@ -2,7 +2,6 @@ package filters
 
 import akka.stream.Materializer
 import javax.inject.{Inject, Singleton}
-import org.apache.commons.logging.LogFactory
 import play.api.mvc.{Filter, RequestHeader, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -10,8 +9,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class LoggingFilter @Inject()(implicit override val mat: Materializer,
                               exec: ExecutionContext) extends Filter{
-  private val LOGGER = LogFactory.getLog(getClass)
-
   override def apply(nextFilter: RequestHeader => Future[Result])
                     (requestHeader: RequestHeader): Future[Result] = {
 
@@ -23,7 +20,7 @@ class LoggingFilter @Inject()(implicit override val mat: Materializer,
 }
 
 object LoggingFilter {
-  private val LOGGER = LogFactory.getLog(getClass)
+  private val LOGGER = play.api.Logger(getClass)
 
   def logRequestHeader(resultOption: Option[Result], requestHeader: RequestHeader): Unit = {
     val buffer = new StringBuilder

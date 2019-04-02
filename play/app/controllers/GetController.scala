@@ -3,6 +3,7 @@ package controllers
 import javax.inject.Inject
 import play.api.http.ContentTypes
 import play.api.mvc.{AnyContent, BaseController, ControllerComponents, Request}
+import play.twirl.api.utils.StringEscapeUtils
 
 class GetController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
 
@@ -10,7 +11,7 @@ class GetController @Inject()(val controllerComponents: ControllerComponents) ex
     val buffer = new StringBuilder()
     buffer.append("<tr><th>Header Key</th><th>Header Value</th></tr>")
     request.headers.toSimpleMap.foreach( entry =>
-        buffer.append(s"   <tr><td>${entry._1}</td><td>${entry._2}</td></tr>\n")
+        buffer.append(s"   <tr><td>${StringEscapeUtils.escapeXml11(entry._1)}</td><td>${StringEscapeUtils.escapeXml11(entry._2)}</td></tr>\n")
     )
     buffer.toString()
   }
@@ -18,7 +19,8 @@ class GetController @Inject()(val controllerComponents: ControllerComponents) ex
   def index = Action{ request =>
     Ok(
       s"""
-        |<html>
+        |<!DOCTYPE html>
+        |<html lang="en">
         | <head><title>Hello World!</title></head>
         | <body>
         | <h1>Request:</h1>
