@@ -51,11 +51,10 @@ metadata:
   name: playapp-service
   labels:
     app: playapp
+  annotations:
+    contour.heptio.com/upstream-protocol.tls: "https, 443"
 spec:
   ports:
-  - name: http
-    port: 80
-    targetPort: 9000
   - name: https
     port: 443
     targetPort: 9443
@@ -67,18 +66,17 @@ kind: IngressRoute
 metadata: 
   name: playapp-ingress-route 
   namespace: default
-  annotations:
-    contour.heptio.com/request-timeout: "infinity"
 spec: 
   virtualhost:
     fqdn: contour-test-public.westus2.cloudapp.azure.com
     tls:
       secretName: playapp-cert
   routes: 
-    - match: /
+    - match: /prefix/
+      prefixRewrite: "/"
       enableWebsockets: true
       permitInsecure: true
       services: 
         - name: playapp-service
-          port: 80
+          port: 443
 
