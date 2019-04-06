@@ -16,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class WebSocketController @Inject()(cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) with SameOriginCheck {
   val logger = play.api.Logger(getClass)
 
-  def ws(): WebSocket = {
+  def ws: WebSocket = {
     WebSocket.acceptOrResult[JsValue, JsValue] {
       case rh if sameOriginCheck(rh) =>
         wsFutureFlow(rh).map { flow =>

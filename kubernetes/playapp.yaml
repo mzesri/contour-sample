@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: playapp
-        image: javidelgadillo/contour-sample:0.1
+        image: javidelgadillo/contour-sample:0.2
         imagePullPolicy: Always
         ports:
         - name: http
@@ -66,14 +66,15 @@ kind: IngressRoute
 metadata: 
   name: playapp-ingress-route 
   namespace: default
+  annotations:
+   contour.heptio.com/request-timeout: "300s" 
 spec: 
   virtualhost:
     fqdn: contour-test-public.westus2.cloudapp.azure.com
     tls:
       secretName: playapp-cert
   routes: 
-    - match: /prefix/
-      prefixRewrite: "/"
+    - match: /
       enableWebsockets: true
       permitInsecure: true
       services: 
