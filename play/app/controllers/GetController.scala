@@ -10,7 +10,7 @@ class GetController @Inject()(val controllerComponents: ControllerComponents) ex
 
   private def echoRequest(request: Request[_]): String = {
     val buffer = new StringBuilder()
-    buffer.append("<tr><th>Header Key</th><th>Header Value</th></tr>\n")
+    buffer.append("  <tr><th>Header Key</th><th>Header Value</th></tr>\n")
     request.headers.toSimpleMap.foreach( entry =>
         buffer.append(s"   <tr><td>${StringEscapeUtils.escapeXml11(entry._1)}</td><td>${StringEscapeUtils.escapeXml11(entry._2)}</td></tr>\n")
     )
