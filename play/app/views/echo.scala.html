@@ -1,0 +1,17 @@
+@(request: Request[_])
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <h1>Headers</h1>
+    <table border="1">
+      <tr><th>Header Key</th><th>Header Value</th></tr>
+      @for(headerKey <- request.headers.keys) {
+        <tr><td>@headerKey</td><td>@request.headers.get(headerKey).getOrElse("")</td></tr>
+      }
+    </table>
+  </body>
+</html>
