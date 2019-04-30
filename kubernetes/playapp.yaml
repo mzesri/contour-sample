@@ -73,6 +73,11 @@ spec:
       secretName: playapp-cert
   routes: 
     - match: /prefix/
+      timeoutPolicy:
+        request: 30s
+      retryPolicy:
+        count: 3
+        perTryTimeout: 150s
       prefixRewrite: /
       enableWebsockets: true
       permitInsecure: true
