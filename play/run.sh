@@ -8,7 +8,10 @@ while getopts "d" opt; do
     esac
 done
 
-$MVN_CMD play2:run \
--Dhttps.port=9443 \
--Dhttp.port=9000 
+#$MVN_CMD play2:run \
+#-Dhttps.port=9443 \
+#-Dhttp.port=9000
 
+MAVEN_OPTS='-Xmx2g'
+
+$MVN_CMD play2:start

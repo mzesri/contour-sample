@@ -5,5 +5,6 @@
 GET         /            controllers.GetController.index
 GET         /echo        controllers.GetController.index
 GET         /delay       controllers.GetController.delay
-GET         /ws          controllers.WebSocketController.ws
+#GET         /ws          controllers.WebSocketController.ws
+GET         /ws          controllers.HomeController.wsNumberSourceActorRefFlow
 

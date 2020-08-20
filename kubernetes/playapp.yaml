@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: playapp
-        image: javidelgadillo/contour-sample:0.2.1
+        image: mzesri/contour-sample:latest
         imagePullPolicy: Always
         ports:
         - name: http
@@ -28,7 +28,7 @@ spec:
           containerPort: 8000
         env:
         - name: EXTERNAL_HOSTNAME
-          value: contour-test-public.westus2.cloudapp.azure.com
+          value: a4iot-mingwebsockettest.westus2.cloudapp.azure.com
         resources:
           limits:
             cpu: '8'
@@ -36,14 +36,6 @@ spec:
           requests:
             cpu: '1'
             memory: 1Gi
-        volumeMounts:
-        - name: playappcertvol
-          mountPath: "/tmp/playappcert"
-          readOnly: true
-      volumes:
-      - name: playappcertvol
-        secret:
-          secretName: playapp-cert
 ---
 apiVersion: v1
 kind: Service
@@ -51,37 +43,41 @@ metadata:
   name: playapp-service
   labels:
     app: playapp
-  annotations:
-    contour.heptio.com/upstream-protocol.tls: "https, 443"
 spec:
   ports:
-  - name: https
-    port: 443
-    targetPort: 9443
+  - name: http
+    port: 80
+    targetPort: 9000
+    protocol: TCP
   selector:
     app: playapp
 ---
-apiVersion: contour.heptio.com/v1beta1
-kind: IngressRoute
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
 metadata: 
   name: playapp-ingress-route 
   namespace: default
 spec: 
   virtualhost:
-    fqdn: contour-test-public.westus2.cloudapp.azure.com
+    fqdn: a4iot-mingwebsockettest.westus2.cloudapp.azure.com
     tls:
-      secretName: playapp-cert
+      secretName: a4iot-cert
+      minimumProtocolVersion: "1.2"
   routes: 
-    - match: /prefix/
+    - conditions:
+      - prefix: /prefix/
       timeoutPolicy:
-        request: 30s
-      retryPolicy:
-        count: 3
-        perTryTimeout: 150s
-      prefixRewrite: /
+        response: 900s
+        idle: 900s
       enableWebsockets: true
       permitInsecure: true
-      services: 
+      services:
         - name: playapp-service
-          port: 443
+          port: 80
+      pathRewritePolicy:
+        replacePrefix:
+          - prefix: /prefix/
+            replacement: /
+      retryPolicy:
+        count: 3
 

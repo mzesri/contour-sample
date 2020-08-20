@@ -7,12 +7,12 @@
   <parent>
     <groupId>org.javi</groupId>
     <artifactId>contour-sample-parent-project</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.1</version>
   </parent>
   <artifactId>docker-image-playapp</artifactId>
 
   <properties>
-    <docker.namespace>mzesri</docker.namespace>
+    <docker.namespace>javidelgadillo</docker.namespace>
     <docker.repository>contour-sample</docker.repository>
     <playapp.artifactId>sample-playapp</playapp.artifactId>
     <playapp.finalname>play-app-${project.version}</playapp.finalname>
@@ -22,6 +22,8 @@
     <startup.script>configure-https.sh</startup.script>
     <docker.image.name>${docker.namespace}/${docker.repository}</docker.image.name>
     <full.path.startup.script>/${playapp.finalname}/conf/${startup.script}</full.path.startup.script>
+    <yum.install.command.prefix>for i in {1..30}; do echo "Attempt #$i"; yum install -y </yum.install.command.prefix>
+    <yum.install.command.suffix>; rc=$?; if [ $rc -ne 0 ]; then sleep 30s; else break; fi done</yum.install.command.suffix>
   </properties>
 
   <dependencies>
@@ -31,11 +33,6 @@
       <classifier>playapp</classifier>
       <type>zip</type>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.json4s</groupId>
-      <artifactId>json4s-native_${scala.dep.version}</artifactId>
-      <version>${json4s.version}</version>
     </dependency>
   </dependencies>
 
@@ -54,13 +51,13 @@
               <alias>playapp</alias>
               <name>${docker.image.name}</name>
               <build>
-                <from>alpine:3.12.0</from>
+                <from>centos:7</from>
                 <assembly>
                   <mode>dir</mode>
                   <descriptor>assembly.xml</descriptor>
                 </assembly>
                 <runCmds>
-                  <runCmd>apk add --no-cache openjdk8 openssl</runCmd>
+                  <runCmd>${yum.install.command.prefix} java-1.8.0-openjdk.x86_64 unzip openssl ${yum.install.command.suffix}</runCmd>
                   <runCmd>unzip -o ${playapp.zip.path} -d /</runCmd>
                   <runCmd>chmod 777 /${playapp.finalname}</runCmd>
                   <runCmd>mkdir -p /${playapp.finalname}/conf</runCmd>
